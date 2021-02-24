@@ -3,15 +3,20 @@
 relation::relation(const noeud &noeudOrigine)
     :_noeudOrigine(noeudOrigine){}
 
+noeud relation::getNoeudOrigine() const
+{
+    return _noeudOrigine;
+}
+
+noeud relation::setNoeudOrigine()
+{
+    return _noeudOrigine;
+}
+
 relationBinaire::relationBinaire(const noeud &noeudOrigine)
     :relation (noeudOrigine){
     _filsGauche.setEstUnfils(false);
     _filsDroit.setEstUnfils(false);
-}
-
-noeud relation::getNoeudOrigine() const
-{
-    return _noeudOrigine;
 }
 
 noeud relationBinaire::getFilsGauche() const
@@ -56,8 +61,11 @@ void relationNaire::setNoeudsDest(const noeud &n)
     _noeudsDest.push_back(n);
 }
 
-
-
+void relationNaire::setNoeudOrigin(const int &result){
+    setNoeudOrigine().setNbrFoisTraverse();
+    setNoeudOrigine().setNbrGainCummule(result);
+    setNoeudOrigine().setEstOuvert(false);
+}
 
 
 

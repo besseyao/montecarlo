@@ -8,6 +8,7 @@ class relation {
         relation(noeud const & noeudOrigine);
 
         noeud getNoeudOrigine() const;
+        noeud setNoeudOrigine();
 
     private:
         noeud _noeudOrigine;
@@ -36,6 +37,7 @@ class relationNaire : public relation {
 
         std::vector<noeud> getNoeudsDest() const;
         void setNoeudsDest(const noeud &n);
+        void setNoeudOrigin (const int &result);
 
     private:
         std::vector<noeud> _noeudsDest;

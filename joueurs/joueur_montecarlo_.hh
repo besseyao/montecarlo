@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../projet/arbre.hh"
+#include "../arbre_binaire_naire/montecarlo.hh"
 #include "joueur.hh"
 #include "joueur_random.hh"
 

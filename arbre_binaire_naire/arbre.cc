@@ -48,28 +48,28 @@ void arbreBinaire::ajout(const relationBinaire &r) {
 }
 
 
-void arbreBinaire::tabToBin(const std::vector<unsigned int> &tab)
+void arbreBinaire::tabToBin(const std::vector<noeud> &tab)
 {
     // les cases contenants 666 sont une indication pour dire que la case represente un fils gauche/droit vide
     // et ainsi restituer un arbre tel qu'il doit etre et non en faisaint un remplissage au fur et a mesure
     unsigned int repere;
     unsigned int j(0);
     for (unsigned int i(0); i < tab.size();++i){
-        if (tab[i]!=666){
-            noeud n(tab[i]);
+        if (tab[i].getId()!=666){
+            noeud n(tab[i].getId(),tab[i].getaX(),tab[i].getoX(),tab[i].getaO(),tab[i].getoO());
             relationBinaire r(n);
 
             repere = 2*j+1;
             ++j;
             if( repere < tab.size()){
-                if(tab[repere]!=666){
-                    noeud fg(tab[repere]);
+                if(tab[repere].getId()!=666){
+                    noeud fg(tab[repere].getId(),tab[repere].getaX(),tab[repere].getoX(),tab[repere].getaO(),tab[repere].getoO());
                     r.setFilsGauche(fg);
                 }
 
                 if(repere+1 < tab.size()){
-                    if(tab[repere+1]!=666){
-                    noeud fd(tab[repere+1]);
+                    if(tab[repere+1].getId()!=666){
+                    noeud fd(tab[repere+1].getId(),tab[repere+1].getaX(),tab[repere+1].getoX(),tab[repere+1].getaO(),tab[repere+1].getoO());
                     r.setFilsDroit(fd);
                     }
                 }
@@ -80,24 +80,27 @@ void arbreBinaire::tabToBin(const std::vector<unsigned int> &tab)
 }
 
 
-std::vector<unsigned int> arbreBinaire::binToTab() const
+std::vector<noeud> arbreBinaire::binToTab() const
 {
     // les cases contenants 666 sont une indication pour dire que la case represente un fils gauche/droit vide
     // et ainsi restituer un arbre tel qu'il etait en faisant un tabToBin apres
-    std::vector<unsigned int> table;
+    std::vector<noeud> table;
     for (size_t i(0); i < _arbreBinaire.size(); ++i) {
         if(i == 0)
-            table.push_back(_arbreBinaire[i].getNoeudOrigine().getId());
+            table.push_back(_arbreBinaire[i].getNoeudOrigine());
 
         if(_arbreBinaire[i].getFilsGauche().getEstUnfils())
-            table.push_back(_arbreBinaire[i].getFilsGauche().getId());
-        else
-            table.push_back(666);
-
+            table.push_back(_arbreBinaire[i].getFilsGauche());
+        else {
+            noeud null(666,0,0,0,0);
+            table.push_back(null);
+        }
         if(_arbreBinaire[i].getFilsDroit().getEstUnfils())
-            table.push_back(_arbreBinaire[i].getFilsDroit().getId());
-        else
-            table.push_back(666);
+            table.push_back(_arbreBinaire[i].getFilsDroit());
+        else{
+            noeud null(666,0,0,0,0);
+            table.push_back(null);
+        }
 
     }
 
@@ -126,7 +129,7 @@ void arbreNaire::ajout (const relationNaire &r){
     _arbreNaire.push_back(r);
 }
 
-
+// a modifier eventuellement car y a plus rapide
 int arbreNaire::getIndNoeudOrigine(const noeud &n) const{
     for (unsigned int i(0);i<_arbreNaire.size();++i){
         for (const auto &r : _arbreNaire[i].getNoeudsDest()){
@@ -229,4 +232,52 @@ void arbreNaire::naireToBinaire(arbreBinaire &arbb)
 }
 
 
+void arbreNaire::ajoutfils(const noeud &origine, const noeud &n){
+    int i = getIndNoeudOrigine(origine);
+    _arbreNaire[i].setNoeudsDest(n);
+}
+
+void arbreNaire::completeArbre(const int &result){
+    for (auto &r : _arbreNaire){
+        if (r.getNoeudOrigine().getEstOuvert()){
+            r.setNoeudOrigin(result);
+        }
+    }
+}
+
+const std::vector<relationNaire> &arbreNaire::getArbreNaire() const{
+    return _arbreNaire;
+}
+
+bool arbreNaire::appartient(const Brix &coup,const int &indNoeudOrigine) const{
+    for (auto & r : _arbreNaire[indNoeudOrigine].getNoeudsDest()){
+        if (coup.getAx()==r.getaX() && coup.getOx()==r.getoX() &&
+                coup.getAo()==r.getaO() && coup.getOo()==r.getoO())
+            return true;
+    }
+    return false;
+}
+
+bool arbreNaire::tousExplores (const std::vector<Brix> &coupsPossibles,const int &indNoeudOrigine) const{
+    for (const auto &c : coupsPossibles){
+        if (!appartient(c,indNoeudOrigine))
+            return false;
+    }
+    return true;
+}
+
+int arbreNaire::rechercheNoeudDescente(const int &indNoeudOrigine) const{
+    int max = 0;
+    int i = 0;
+    int indNoeud;
+    for (const auto &r : _arbreNaire[indNoeudOrigine].getNoeudsDest()){
+        int val = (r.getNbrGainCumule()/r.getNbrFoisTraverse()) + sqrt(2*(log(_arbreNaire[0].getNoeudOrigine().getNbrFoisTraverse())/r.getNbrFoisTraverse()));
+        if (val > max){
+            max=val;
+            indNoeud=i;
+        }
+        ++i;
+    }
+    return indNoeud;
+}
 

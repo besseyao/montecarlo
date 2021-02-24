@@ -1,18 +1,17 @@
 #pragma once
+#include "../jeu.hh"
 #include "arbre.hh"
-#include "../joueurs/joueur_random.hh"
-#include <thread>
-#include <mutex>
 
 class montecarlo {
     public:
         montecarlo() = default;
+        arbreNaire getArbre () const;
         void chargerFichier();
-        void apprentissage(unsigned int nbrePartie);
-        noeud selectionnerNoeud();
-        result const & simulationPartie(Jeu & jeu, Joueur_Random &joueur);
-        void rechercherCoup(Jeu & j, Brix &b);
         void enregistrerFichier();
+        void coupRandom (Jeu jeu,Brix &coup)const;
+        std::vector<Brix> coupsPossibles (const Jeu &jeu) const;
+        void simulePartie (Jeu &jeu);
+        void apprentissage(Jeu &jeu,const int &nbParties);
     private:
         arbreNaire _arbre;
 };
