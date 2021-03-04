@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <memory>
 
 enum class resultat
 {
@@ -15,23 +16,22 @@ class noeud
     public:
         noeud() =default;
         noeud(const unsigned int &id,const int aX, const int oX, const int aO, const int oO);
-        noeud(noeud const & n);
 
-        unsigned int getId() const ;
-        bool getEstUnfils() const ;
+        const unsigned int &getId() const ;
+        const bool &getEstUnfils() const ;
         void setEstUnfils(const bool &rep);
 
-        bool getEstOuvert() const;
-        int getNbrGainCumule() const;
-        int getNbrFoisTraverse() const;
+        const bool &getEstOuvert() const;
+        const int &getNbrGainCumule() const;
+        const int &getNbrFoisTraverse() const;
         void setNbrGainCummule (const int &n);
         void setNbrFoisTraverse ();
         void setEstOuvert (const bool &b);
         void setBrix (const int aX, const int oX, const int aO, const int oO);
-        int getaX() const;
-        int getoX() const;
-        int getaO() const;
-        int getoO() const;
+        const int &getaX() const;
+        const int &getoX() const;
+        const int &getaO() const;
+        const int &getoO() const;
     private:
         unsigned int _id;
         //les 4 données pour un brix
@@ -43,14 +43,4 @@ class noeud
         int _nbrGainCummule;
         int _nbrFoisTraverse;
         bool _estOuvert;
-        resultat _valeur;
-
-        //  -- Prevue pour la suite
-
-        /*
-         *  std::string _nom;
-         * int _nbreGainCummule;
-         * int _nbreFoisTraverse;
-         * bool _estOuvert;
-         */
 };

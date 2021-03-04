@@ -30,23 +30,25 @@ class arbreNaire {
         arbreNaire() =default;
 
         void affichage() const;
-        void ajout(const relationNaire  &r);
-        int getIndNoeudOrigine(const noeud &n) const;
-        std::vector<noeud> getNoeudEnfant(noeud const & n);
+        void ajout(relationNaire &r);
+        int getIndNoeudOrigine(const int &aX,const int &oX,const int &aO,const int &oO) const;
+        const std::vector<std::shared_ptr<noeud> > &getNoeudEnfant(noeud const & n) const;
         void naireToBinaire(arbreBinaire & arbb);
         void binaireToNaire (const arbreBinaire &arbb);
         bool isEmpty();
 
         //ajout de ces methode
         const std::vector<relationNaire> &getArbreNaire() const;
-        void ajoutfils(const noeud &origine,const noeud &n);
+        std::vector<relationNaire> &setArbreNaire();
+        void ajoutfils(const int &origine, std::shared_ptr<noeud> &n);
         void completeArbre(const int &result);
         //savoir si un coup est deja dans un noeud fils du noeud origine donné en parametre
-        bool appartient (const Brix &coup, const int &indNoeudOrigine) const;
+        bool appartient(const Brix &coup, const int &indNoeudOrigine) const;
         //retourne l'indice où mettre le premier coup qui n'est pas encore mis dans l'arbre
-        bool tousExplores (const std::vector<Brix> &coupsPossibles, const int &indNoeudOrigine) const;
+        bool tousExplores(const std::vector<Brix> &coupsPossibles, const int &indNoeudOrigine) const;
         //selectione le noeud fils ayant la plus grande valeur UBC
         int rechercheNoeudDescente(const int &indNoeudOrigine) const;
+
 
     private:
         std::vector<relationNaire> _arbreNaire;

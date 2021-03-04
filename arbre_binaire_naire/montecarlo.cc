@@ -66,12 +66,15 @@ void montecarlo::simulePartie (Jeu &jeu){
         jeu.joue(coup);
     }
     if (jeu.partie_O()) {
-        _arbre.completeArbre(1);//completer cette methode en mettant la brix
+        //std::cout << "les O ont gg ! " << std::endl;
+        _arbre.completeArbre(1);
     }
     else if (jeu.partie_X()) {
+        //std::cout << "les X ont gg ! " << std::endl;
         _arbre.completeArbre(-1);
     }
     else if (jeu.partie_nulle()){
+        //std::cout << "match nul! " << std::endl;
         _arbre.completeArbre(0);
     }
 }
@@ -120,19 +123,35 @@ std::vector<Brix> montecarlo::coupsPossibles (const Jeu &jeu)const{
     return coupValide;
 }
 
+bool montecarlo::etatFusionnable(const int &indNoeudOrigine,const Jeu &jeu, const Brix &coup){
+    Jeu j1 = jeu;
+    j1.joue(coup);
+    for (const auto & r : _arbre.getArbreNaire()[indNoeudOrigine].getNoeudsDest()){
+        Jeu j2 = jeu;
+        Brix cp (r->getaX(),r->getaO(),r->getoX(),r->getoO());
+        j2.joue(cp);
+        if (j1.plateau()==j2.plateau())
+            return true;
+    }
+    return false;
+}
+
 void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
     // construction de la racine de l'arbre
-    noeud racine (0,0,0,0,0);
-    std::vector<noeud> vide;
+    int id = 0;
+    auto racine = std::make_shared<noeud>(0,0,0,0,0);
+    id++;
+    std::vector<std::shared_ptr<noeud>> vide;
     relationNaire r(racine,vide);
     _arbre.ajout(r);
-    int NbSimulation=1;
+    int NbSimulation=0;
     //premier acroissement pas de descente, on roll out directement
     simulePartie(jeu);
     int i;
     int j;
     //ensuite on deroule l'algorithme avec descente/growth/roll out
     while (NbSimulation<nbParties){
+        _arbre.setArbreNaire()[0].setNoeudOrigine()->setEstOuvert(true);
         i=0;
         jeu.reset();
         //1ere et deuxieme etape, la descente et le growth
@@ -145,17 +164,20 @@ void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
             if (!_arbre.tousExplores(cp,i)){
                 j=0;
                 //on selectionne un coup qui n'est pas dans l'arbre
-                while (_arbre.appartient(cp[j],i))
+                while (_arbre.appartient(cp[j],i) && !etatFusionnable(i,jeu,cp[j]))
                     ++j;
-                //growth, ajout en tant que fils
-                noeud fils(j,cp[j].getAx(),cp[j].getOx(),cp[j].getAo(),cp[j].getOo());
-                _arbre.ajoutfils(_arbre.getArbreNaire()[i].getNoeudOrigine(),fils);
+                //growth
+                auto fils = std::make_shared<noeud>(id,cp[j].getAx(),cp[j].getOx(),cp[j].getAo(),cp[j].getOo());
+                id++;
                 //ajout en tant que noeud dans l'arbre
-                std::vector<noeud> vide;
+                std::vector<std::shared_ptr<noeud>> vide;
                 relationNaire r(fils,vide);
                 _arbre.ajout(r);
+                //ajout en tant que fils
+                _arbre.ajoutfils(i,fils);
                 //on joue le coup dans le plateau
                 jeu.joue(cp[j]);
+                std::cout << jeu;
                 growth=true;
             }
             //sinon on fait la selection exploration/enfoncement selon le calcul de l'UBC
@@ -163,20 +185,23 @@ void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
                 //on selectionne le coup ayant l' UBC le plus haut
                 int indNoeud = _arbre.rechercheNoeudDescente(i);
                 //on se place donc au niveau du nouveau noeud choisi, donc on joue le coup
-                int aX=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud].getaX();
-                int oX=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud].getoX();
-                int aO=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud].getaO();
-                int oO=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud].getoO();
+                int aX=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]->getaX();
+                int oX=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]->getoX();
+                int aO=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]->getaO();
+                int oO=_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]->getoO();
+                _arbre.setArbreNaire()[i].setNoeudsDest()[indNoeud]->setEstOuvert(true);
                 //on joue le coup dans le plateau
                 Brix coup (aX,oX,aO,oO);
                 jeu.joue(coup);
                 //on se place dans l'arbre au niveaux du coup choisit pour la prochaine itération
-                i = _arbre.getIndNoeudOrigine(_arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]);
+                i = _arbre.getArbreNaire()[i].getNoeudsDest()[indNoeud]->getId();
             }
         }
         //rollout
         simulePartie(jeu);
+        NbSimulation++;
         //on remonte l'information ce qui est fait avec la methode simule partie
      }
+
 }
 

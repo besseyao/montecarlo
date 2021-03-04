@@ -17,9 +17,11 @@ int main()
     int r= a.challenge();
    return r;
     */
+
     montecarlo mc;
     Jeu jeu;
-    mc.apprentissage(jeu,0);
+    mc.apprentissage(jeu,400);
     mc.getArbre().affichage();
+
     return 0;
 }

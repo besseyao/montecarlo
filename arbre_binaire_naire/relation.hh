@@ -5,13 +5,13 @@
 class relation {
     public:
         relation() = default;
-        relation(noeud const & noeudOrigine);
+        relation(const std::shared_ptr<noeud> &noeudOrigine);
 
-        noeud getNoeudOrigine() const;
-        noeud setNoeudOrigine();
+        const std::shared_ptr<noeud> &getNoeudOrigine() const;
+        std::shared_ptr<noeud> &setNoeudOrigine();
 
-    private:
-        noeud _noeudOrigine;
+    protected:
+        std::shared_ptr<noeud> _noeudOrigine;
 };
 
 
@@ -33,12 +33,14 @@ class relationBinaire : public relation {
 
 class relationNaire : public relation {
     public:
-        relationNaire(noeud const & noeudOrigine, std::vector<noeud> const & noeudsDest);
 
-        std::vector<noeud> getNoeudsDest() const;
-        void setNoeudsDest(const noeud &n);
+        relationNaire(const std::shared_ptr<noeud> &noeudOrigine, const std::vector<std::shared_ptr<noeud> > &noeudsDest);
+
+        const std::vector<std::shared_ptr<noeud> > &getNoeudsDest() const;
+        std::vector<std::shared_ptr<noeud>> &setNoeudsDest();
+        void setNoeudsDest(std::shared_ptr<noeud> &n);
         void setNoeudOrigin (const int &result);
 
     private:
-        std::vector<noeud> _noeudsDest;
+        std::vector<std::shared_ptr<noeud>> _noeudsDest;
 };

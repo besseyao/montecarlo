@@ -6,7 +6,7 @@ const std::vector<relationBinaire> &arbreBinaire::getArbreBinaire() const
     return _arbreBinaire;
 }
 
-
+/*
 void arbreBinaire::setFilsG(const noeud &origine, const noeud &fg, bool &trouve){
     auto i (_arbreBinaire.begin());
     while ( i!=_arbreBinaire.end() && !trouve){
@@ -107,7 +107,7 @@ std::vector<noeud> arbreBinaire::binToTab() const
     return table;
 }
 
-
+*/
 
 
 
@@ -117,45 +117,46 @@ std::vector<noeud> arbreBinaire::binToTab() const
 void arbreNaire::affichage() const
 {
     for(auto & r : _arbreNaire){
-            std::cout << r.getNoeudOrigine().getId() << " -- ";
+            std::cout << r.getNoeudOrigine()->getId() << " -- ";
             for (auto & n : r.getNoeudsDest()){
-                std::cout << n.getId() << " ";
+                std::cout << n->getId() << " ";
             }
             std::cout << "\n";
     }
 }
 
-void arbreNaire::ajout (const relationNaire &r){
+void arbreNaire::ajout(relationNaire &r){
     _arbreNaire.push_back(r);
 }
 
-// a modifier eventuellement car y a plus rapide
-int arbreNaire::getIndNoeudOrigine(const noeud &n) const{
-    for (unsigned int i(0);i<_arbreNaire.size();++i){
-        for (const auto &r : _arbreNaire[i].getNoeudsDest()){
-            if (r.getId()==n.getId()) return i;
+
+int arbreNaire::getIndNoeudOrigine(const int &aX,const int &oX,const int &aO,const int &oO) const{
+    int i=0;
+    for (const auto & r : _arbreNaire){
+        if (aX==r.getNoeudOrigine()->getaX() && oX==r.getNoeudOrigine()->getoX() &&
+                aO==r.getNoeudOrigine()->getaO() && oO==r.getNoeudOrigine()->getoO()) return i;
+        ++i;
         }
-    }
     return 0;
 }
 
-std::vector<noeud> arbreNaire::getNoeudEnfant(noeud const & n)
+const std::vector<std::shared_ptr<noeud>> &arbreNaire::getNoeudEnfant(noeud const & n) const
 {
     for (size_t i(0); i< _arbreNaire.size(); ++i) {
-        if(_arbreNaire[i].getNoeudOrigine().getId() == n.getId())
+        if(_arbreNaire[i].getNoeudOrigine()->getId() == n.getId())
             return _arbreNaire[i].getNoeudsDest();
     }
 }
 
-
+/*
 void arbreNaire::binaireToNaire (const arbreBinaire &arbn){
     if (arbn.getArbreBinaire().size() != 0){
         for (unsigned int i(0); i <arbn.getArbreBinaire().size(); ++i){
             if (i==0){
                 noeud origine = arbn.getArbreBinaire()[i].getNoeudOrigine();
-                std::vector<noeud> fils;
+                std::vector<std::shared_ptr<noeud>> fils;
                 if(arbn.getArbreBinaire()[i].getFilsGauche().getEstUnfils()) {
-                    noeud fg = arbn.getArbreBinaire()[i].getFilsGauche();
+                    std::shared_ptr<noeud> fg = arbn.getArbreBinaire()[i].getFilsGauche();
                     fils.push_back(fg);
                 }
                 relationNaire r (origine,fils);
@@ -165,14 +166,14 @@ void arbreNaire::binaireToNaire (const arbreBinaire &arbn){
                 if(arbn.getArbreBinaire()[i].getFilsDroit().getEstUnfils()){
                     noeud fd = arbn.getArbreBinaire()[i].getFilsDroit();
                     noeud recherche = arbn.getArbreBinaire()[i].getNoeudOrigine();
-                    int j = this->getIndNoeudOrigine(recherche);
+                    int j = this->getIndNoeudOrigine(recherche.getaX(),recherche.getoX(),recherche.getaO(),recherche.getoO());
                     this->_arbreNaire[j].setNoeudsDest(fd);
                 }
                 if (arbn.getArbreBinaire()[i].getFilsGauche().getEstUnfils()){
                     noeud origine = arbn.getArbreBinaire()[i].getNoeudOrigine();
                     noeud fg = arbn.getArbreBinaire()[i].getFilsGauche();
-                    std::vector<noeud> fils;
-                    fils.push_back(fg);
+                    std::vector<noeud *> fils;
+                    fils.push_back(&fg);
                     relationNaire r (origine,fils);
                     this->ajout(r);
                 }
@@ -180,12 +181,12 @@ void arbreNaire::binaireToNaire (const arbreBinaire &arbn){
         }
     }
 }
-
+*/
 bool arbreNaire::isEmpty()
 {
     return  (_arbreNaire.size() == 0);
 }
-
+/*
 void arbreNaire::naireToBinaire(arbreBinaire &arbb)
 {
     if (_arbreNaire.size() != 0){
@@ -211,7 +212,7 @@ void arbreNaire::naireToBinaire(arbreBinaire &arbb)
                         arbb.setFilsG(origin,fg,trouve);
                         if (!trouve){
                             relationBinaire r(_arbreNaire[i].getNoeudOrigine());
-                            r.setFilsGauche(_arbreNaire[i].getNoeudsDest()[j]);
+                            r.setFilsGauche(_arbreNaire[i].*getNoeudsDest()[j]);
                             arbb.ajout(r);
                         }
                     }else {
@@ -231,16 +232,17 @@ void arbreNaire::naireToBinaire(arbreBinaire &arbb)
     }
 }
 
-
-void arbreNaire::ajoutfils(const noeud &origine, const noeud &n){
-    int i = getIndNoeudOrigine(origine);
-    _arbreNaire[i].setNoeudsDest(n);
+*/
+void arbreNaire::ajoutfils(const int &origine, std::shared_ptr<noeud> &n){
+    _arbreNaire[origine].setNoeudsDest(n);
 }
 
 void arbreNaire::completeArbre(const int &result){
     for (auto &r : _arbreNaire){
-        if (r.getNoeudOrigine().getEstOuvert()){
-            r.setNoeudOrigin(result);
+        if (r.getNoeudOrigine()->getEstOuvert()){
+            r.setNoeudOrigine()->setNbrFoisTraverse();
+            r.setNoeudOrigine()->setNbrGainCummule(result);
+            r.setNoeudOrigine()->setEstOuvert(false);
         }
     }
 }
@@ -249,10 +251,14 @@ const std::vector<relationNaire> &arbreNaire::getArbreNaire() const{
     return _arbreNaire;
 }
 
+std::vector<relationNaire> &arbreNaire::setArbreNaire(){
+    return _arbreNaire;
+}
+
 bool arbreNaire::appartient(const Brix &coup,const int &indNoeudOrigine) const{
     for (auto & r : _arbreNaire[indNoeudOrigine].getNoeudsDest()){
-        if (coup.getAx()==r.getaX() && coup.getOx()==r.getoX() &&
-                coup.getAo()==r.getaO() && coup.getOo()==r.getoO())
+        if (coup.getAx()==r->getaX() && coup.getOx()==r->getoX() &&
+                coup.getAo()==r->getaO() && coup.getOo()==r->getoO())
             return true;
     }
     return false;
@@ -267,11 +273,12 @@ bool arbreNaire::tousExplores (const std::vector<Brix> &coupsPossibles,const int
 }
 
 int arbreNaire::rechercheNoeudDescente(const int &indNoeudOrigine) const{
-    int max = 0;
+    float max = 0;
     int i = 0;
     int indNoeud;
     for (const auto &r : _arbreNaire[indNoeudOrigine].getNoeudsDest()){
-        int val = (r.getNbrGainCumule()/r.getNbrFoisTraverse()) + sqrt(2*(log(_arbreNaire[0].getNoeudOrigine().getNbrFoisTraverse())/r.getNbrFoisTraverse()));
+        float val = (r->getNbrGainCumule()/r->getNbrFoisTraverse()) + sqrt(2*(log(_arbreNaire[indNoeudOrigine].getNoeudOrigine()->getNbrFoisTraverse())/r->getNbrFoisTraverse()));
+        //std::cout << val << std::endl;
         if (val > max){
             max=val;
             indNoeud=i;
@@ -280,4 +287,5 @@ int arbreNaire::rechercheNoeudDescente(const int &indNoeudOrigine) const{
     }
     return indNoeud;
 }
+
 

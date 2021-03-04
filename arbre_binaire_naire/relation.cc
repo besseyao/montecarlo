@@ -1,18 +1,18 @@
 #include "relation.hh"
 
-relation::relation(const noeud &noeudOrigine)
+relation::relation(const std::shared_ptr<noeud> &noeudOrigine)
     :_noeudOrigine(noeudOrigine){}
 
-noeud relation::getNoeudOrigine() const
+const std::shared_ptr<noeud> &relation::getNoeudOrigine() const
 {
     return _noeudOrigine;
 }
 
-noeud relation::setNoeudOrigine()
-{
+std::shared_ptr<noeud> &relation::setNoeudOrigine(){
     return _noeudOrigine;
 }
 
+/*
 relationBinaire::relationBinaire(const noeud &noeudOrigine)
     :relation (noeudOrigine){
     _filsGauche.setEstUnfils(false);
@@ -40,31 +40,38 @@ void relationBinaire::setFilsDroit(const noeud &n)
     _filsDroit = n ;
     _filsDroit.setEstUnfils(true);
 }
+*/
 
 
 
-
-relationNaire::relationNaire(const noeud &noeudOrigine, const std::vector<noeud> &noeudsDest)
+relationNaire::relationNaire(const std::shared_ptr<noeud> &noeudOrigine, const std::vector<std::shared_ptr<noeud> > &noeudsDest)
     :relation (noeudOrigine), _noeudsDest(noeudsDest){
     for (auto &r : _noeudsDest)
-        r.setEstUnfils(true);
+        r->setEstUnfils(true);
     }
 
-std::vector<noeud> relationNaire::getNoeudsDest() const
+
+const std::vector<std::shared_ptr<noeud> > &relationNaire::getNoeudsDest() const
+{
+    return _noeudsDest;
+}
+
+std::vector<std::shared_ptr<noeud> > &relationNaire::setNoeudsDest()
 {
     return _noeudsDest;
 }
 
 
-void relationNaire::setNoeudsDest(const noeud &n)
+
+void relationNaire::setNoeudsDest(std::shared_ptr<noeud> &n)
 {
     _noeudsDest.push_back(n);
 }
 
 void relationNaire::setNoeudOrigin(const int &result){
-    setNoeudOrigine().setNbrFoisTraverse();
-    setNoeudOrigine().setNbrGainCummule(result);
-    setNoeudOrigine().setEstOuvert(false);
+    _noeudOrigine->setNbrFoisTraverse();
+    _noeudOrigine->setNbrGainCummule(result);
+    _noeudOrigine->setEstOuvert(false);
 }
 
 
