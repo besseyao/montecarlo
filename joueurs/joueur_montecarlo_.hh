@@ -2,6 +2,7 @@
 
 
 #include "joueur.hh"
+#include "../montecarlo_brm/arbre.hh"
 
 
 class Joueur_MonteCarlo_ : public Joueur
@@ -11,4 +12,5 @@ public:
   //char nom_abbrege() const override;
 
   void recherche_coup(Jeu, Brix & coup) override;
+  arbre _arbre; // memoire du joueur montecarlo
 };
