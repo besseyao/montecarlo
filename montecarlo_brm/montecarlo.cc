@@ -69,12 +69,13 @@ resultat montecarlo::simulationPartie(Jeu &jeu,Joueur_Random &joueur)
         bool try_lock = false;
         tour++;
         brix.setDefinie(false);
+        coupsPossibles(jeu, brix);
 
         coup_mutex.unlock();
 
-        std::thread thread_joueur(&Joueur::jouer, joueur, jeu, std::ref(brix), std::ref(coup_mutex));
+        //std::thread thread_joueur(&Joueur::jouer, joueur, jeu, std::ref(brix), std::ref(coup_mutex));
 
-        std::this_thread::sleep_for (std::chrono::milliseconds(TEMPS_POUR_UN_COUP));
+        //std::this_thread::sleep_for (std::chrono::milliseconds(TEMPS_POUR_UN_COUP));
         //        std::this_thread::sleep_for (std::chrono::seconds(TEMPS_POUR_UN_COUP));
 
         if (!coup_mutex.try_lock()) {
@@ -88,7 +89,7 @@ resultat montecarlo::simulationPartie(Jeu &jeu,Joueur_Random &joueur)
                 std::cerr << "coup invalide " << brix << std::endl;
             }
 
-        thread_joueur.detach();
+        //thread_joueur.detach();
 
         if(try_lock ||
                 (brix.getDefinie() == false) ||
@@ -166,6 +167,8 @@ void montecarlo::apprentissage(int nbreParties)
             _arbre.updateBranche(_arbre.getNoeuds().back().getId(), 0);
             std::cout << "Rien sur dernier coup enregistre : " << _arbre.getNoeuds().back().getId();
         }
+
+        // _arbre.calculQUBC(_arbre.getNoeuds().back().getId());
 
         nbreParties--;
 

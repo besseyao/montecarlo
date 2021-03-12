@@ -5,7 +5,8 @@ unsigned int noeud::_cpt(1);
 noeud::noeud()
     :_id("noeud" + std::to_string(_cpt++)),
       _nbrGainCummule(0),
-      _nbrFoisTraverse(0)
+      _nbrFoisTraverse(0),
+      _qubc(0)
 {
     initPlateau();
 }
@@ -25,9 +26,10 @@ noeud::noeud(std::string &enr){
     _nbrGainCummule = std::stoi(n_param[2]);
     _nbrFoisTraverse = std::stoi(n_param[3]);
     // _estOuvert = utilitaire::stob(n_param[4]);
+    _qubc = std::stod(n_param[4]);
 
-    if(n_param.size() > 4)
-        _brix.setAllCoord(std::stoi(n_param[4]), std::stoi(n_param[5]), std::stoi(n_param[6]), std::stoi(n_param[7]));
+    if(n_param.size() > 5)
+        _brix.setAllCoord(std::stoi(n_param[5]), std::stoi(n_param[6]), std::stoi(n_param[7]), std::stoi(n_param[8]));
 
     // std::string val(n_param[5]);
 
@@ -129,7 +131,9 @@ const std::string noeud::showNoeud() const
     os << "*";
     // os << _estUnFils << "*";
     os << _nbrGainCummule << "*";
-    os << _nbrFoisTraverse ;
+    os << _nbrFoisTraverse << "*" ;
+    os << std::setprecision(5) << _qubc;
+
     // os << _estOuvert << "*";
     /*
     switch (_valeur) {
@@ -174,5 +178,15 @@ Brix noeud::getBrix() const
 void noeud::setBrix(int aX, int oX, int aO, int oO)
 {
     _brix.setAllCoord(aX, oX, aO, oO);
+}
+
+double noeud::getQubc() const
+{
+    return _qubc;
+}
+
+void noeud::setQubc(double qubc)
+{
+    _qubc = qubc;
 }
 

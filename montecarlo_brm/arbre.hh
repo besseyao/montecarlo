@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <math.h>
 #include "noeud.hh"
 #include "relation.hh"
 #include "utilitaire.hh"
@@ -29,28 +30,10 @@ class arbre {
 
         bool ajouterFilsSiRelationExiste(noeud const & origine, noeud const & destination);
 
-        void updateBranche(std::string const & id_noeud , int gain){
-            //std::vector<std::string> branche;
-            std::string noeud_recherche(id_noeud);
+        void updateBranche(std::string const & id_noeud , int gain);
 
-            while (noeud_recherche != "") {
-                // branche.push_back(noeud_recherche);
-                getNoeudById(noeud_recherche)->setNbrFoisTraverse(getNoeudById(noeud_recherche)->getNbrFoisTraverse()+1);
-                getNoeudById(noeud_recherche)->setNbrGainCummule(getNoeudById(noeud_recherche)->getNbrGainCummule()+ gain);
-
-                noeud_recherche = getNoeudParent(noeud_recherche);
-
-            }
-        }
-
-        std::string getNoeudParent(std::string const & id_noeud){
-            for(auto &r : _relations)
-                for(auto &d: r.destination())
-                    if(d.getId() == id_noeud)
-                        return r.origine().getId();
-
-            return "";
-        }
+        void calculQUBC(std::string const &  noeud_recherche);
+        std::string getNoeudParent(std::string const & id_noeud);
 
         void sauvegarderArbre() const;
 
