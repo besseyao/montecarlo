@@ -14,6 +14,7 @@ class montecarlo {
         std::vector<Brix> coupsPossibles (const Jeu &jeu, Brix &coup){
 
             std::vector<Brix> coupValide;
+            std::vector<Brix> coupValideNonJoue;
             Brix b_canditate;
             int tour = jeu.nbCoupJoue()+1;//la b_candidate devra être valide au tour auquel on va la jouer,i.e. au tour suivant
             int place_coup_joue, taille;
@@ -57,13 +58,33 @@ class montecarlo {
                 }//fin du for.
             //std::cout<<coupValide<<std::endl;
             //On choisit un coup au hazard
+/*
+            // On verifie si le coup a deja ete joué
 
-            taille =coupValide.size();
-            place_coup_joue= taille == 1 ?  0 : rand() % (taille-1);
-            aO= coupValide[place_coup_joue].getAo();
-            oO= coupValide[place_coup_joue].getOo();
-            aX= coupValide[place_coup_joue].getAx();
-            oX= coupValide[place_coup_joue].getOx();
+            for (auto &c : coupValide)
+                if (!_arbre.noeudFilsExisteBrix((*_arbre.getNoeudByPlateau(jeu.plateau())), c))
+                    coupValideNonJoue.push_back(c);
+
+            if(coupValideNonJoue.size() == 0)
+            {*/
+                taille =coupValide.size();
+                place_coup_joue= taille == 1 ?  0 : rand() % (taille-1);
+                aO= coupValide[place_coup_joue].getAo();
+                oO= coupValide[place_coup_joue].getOo();
+                aX= coupValide[place_coup_joue].getAx();
+                oX= coupValide[place_coup_joue].getOx();
+         /*   }
+            else {
+                taille =coupValideNonJoue.size();
+                place_coup_joue= taille == 1 ?  0 : rand() % (taille-1);
+                aO= coupValideNonJoue[place_coup_joue].getAo();
+                oO= coupValideNonJoue[place_coup_joue].getOo();
+                aX= coupValideNonJoue[place_coup_joue].getAx();
+                oX= coupValideNonJoue[place_coup_joue].getOx();
+            }
+*/
+
+
             coup.setAllCoord(aX, oX, aO, oO);
         }
         resultat simulationPartie(Jeu &jeu, Joueur_Random &joueur);

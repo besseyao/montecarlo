@@ -1,156 +1,69 @@
-#include "arbre.hh"
-#include <iostream>
-
-arbre::arbre(const std::vector<noeud> &noeuds, std::vector<relation> relations) :_noeuds(noeuds), _relations(relations){}
-
-void arbre::decompresserArbre(const std::string &chemin)
+#pragma once
+#include<array>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include "utilitaire.hh"
+enum class resultat
 {
-    std::string contenuFichier;
-    unsigned int nbre_noeud(0), nbre_relation(0), itt(1);
+    ND,
+    DEFAITE,
+    VICTOIRE,
+    NUL
+};
 
-    std::ifstream fichier("apprentissage.txt");
+class noeud {
+    public:
+        noeud();
+        void initPlateau();
 
-    while (getline (fichier, contenuFichier)) {
-        if(itt == 1)
-            nbre_noeud = std::stoi(utilitaire::explode(contenuFichier, ' ')[5]);
-        else if(itt == 2)
-            nbre_relation = std::stoi(utilitaire::explode(contenuFichier, ' ')[5]);
-        else if(itt > 2 && itt <= (nbre_noeud + 2)){
-            noeud n(contenuFichier);
-            ajouterNoeud(n);
-        }
-        else if(itt > (nbre_noeud + 3) && itt <= (nbre_noeud + nbre_relation + 3)){
+        noeud(std::string & enr);
 
-            std::vector<std::string> rel = utilitaire::explode(contenuFichier, ' ');
+        board plateau() const;
+        void setPlateau(board const & plateau);
 
-            relation r;
-            auto origine = getNoeudById(rel[0]);
-            r.setOrigine(*origine);
+        std::string getId() const;
+        void setId(const std::string &id);
 
-            for(size_t i(1); i < rel.size(); i++)
-                r.ajouterDestination(*getNoeudById(rel[i]));
-            ajouterRelation(r);
+        // bool getEstUnFils() const;
+        // void setEstUnFils(bool estUnFils);
 
-        }
+        int getNbrGainCummule() const;
+        void setNbrGainCummule(int nbrGainCummule);
 
-        itt++;
-    }
-    noeud::setCpt(_noeuds.size()+1);
-    fichier.close();
-}
+        int getNbrFoisTraverse() const;
+        void setNbrFoisTraverse(int nbrFoisTraverse);
 
-std::vector<noeud> arbre::getNoeuds() const
-{
-    return _noeuds;
-}
+        // bool getEstOuvert() const;
+        // void setEstOuvert(bool estOuvert);
 
-void arbre::ajouterNoeud(const noeud &noeud)
-{
-    _noeuds.push_back(noeud);
-}
+        // resultat getValeur() const;
+        // void setValeur(const resultat &valeur);
 
-std::vector<relation> arbre::getRelations() const
-{
-    return _relations;
-}
+        std::string const showNoeud() const;
+        noeud &operator=(noeud const & n);
+        static void setCpt(unsigned int cpt);
 
-void arbre::ajouterRelation(const relation &relations)
-{
-    _relations.push_back(relations);
-}
+        Brix getBrix() const;
+        void setBrix(int aX, int oX, int aO, int oO);
 
-std::vector<noeud>::iterator arbre::getNoeudById(const std::string &id)
-{
-    for (auto i (_noeuds.begin()); i!=_noeuds.end(); ++i)
-        if ((*i).getId() == id)
-            return i;
-    return _noeuds.end();
-}
+        double getQubc() const;
+        void setQubc(double qubc);
 
-std::vector<noeud>::iterator arbre::getNoeudByPlateau(const board &b)
-{
-    for (auto i (_noeuds.begin()); i!=_noeuds.end(); ++i)
-        if ((*i).plateau() == b)
-            return i;
-    return _noeuds.end();
-}
+private:
+        std::string _id;
 
-bool arbre::noeudFilsExiste(noeud const & n, board const & board) const
-{
-    std::vector<noeud> fils = getFilsRelationByOrigine(n);
+        board _plateau;
 
-    for(auto & n : fils)
-        if(n.plateau() == board)
-            return true;
-    return false;
-}
+        // bool _estUnFils;
+        int _nbrGainCummule;
+        unsigned int _nbrFoisTraverse;
+        // bool _estOuvert;
+        // resultat _valeur;
+        Brix _brix;
+        double _qubc;
+        static unsigned int _cpt;
 
-std::vector<noeud> arbre::getFilsRelationByOrigine(const noeud &n) const {
-    std::vector<noeud> vn;
-    for(auto &r : _relations)
-        if(r.origine().getId() == n.getId())
-            return r.destination();
-    return vn;
-}
+};
 
-bool arbre::ajouterFilsSiRelationExiste(const noeud &origine, const noeud &destination){
-    for (auto &r : _relations) {
-        if (r.origine().getId() == origine.getId()){
-            r.ajouterDestination(destination);
-            return  true;
-        }
-    }
-    return false;
-}
 
-void arbre::updateBranche(const std::string &id_noeud, int gain){
-    //std::vector<std::string> branche;
-    std::string noeud_recherche(id_noeud);
-
-    while (noeud_recherche != "") {
-        // branche.push_back(noeud_recherche);
-        getNoeudById(noeud_recherche)->setNbrFoisTraverse(getNoeudById(noeud_recherche)->getNbrFoisTraverse()+1);
-        getNoeudById(noeud_recherche)->setNbrGainCummule(getNoeudById(noeud_recherche)->getNbrGainCummule()+ gain);
-
-        std::vector<noeud> fils = getFilsRelationByOrigine(*getNoeudById(noeud_recherche));
-
-        for (auto & f:fils) {
-            if (getNoeudById(f.getId())->getNbrFoisTraverse() > 0)
-                //log() / f.getNbrFoisTraverse()
-                getNoeudById(f.getId())->setQubc((double) getNoeudById(f.getId())->getNbrGainCummule() + sqrt (2 * (log(getNoeudById(noeud_recherche)->getNbrFoisTraverse()) / (double) getNoeudById(f.getId())->getNbrFoisTraverse())));
-        }
-
-        noeud_recherche = getNoeudParent(noeud_recherche);
-    }
-}
-
-std::string arbre::getNoeudParent(const std::string &id_noeud){
-    for(auto &r : _relations)
-        for(auto &d: r.destination())
-            if(d.getId() == id_noeud)
-                return r.origine().getId();
-
-    return "";
-}
-
-void arbre::sauvegarderArbre() const
-{
-    std::ostringstream os;
-
-    os << "C nombre de noeuds : " << _noeuds.size() << "\n";
-    os << "C nombre de relations : " << _relations.size() << "\n";
-
-    for (auto & n : _noeuds)
-        os << n.showNoeud() << "\n";
-
-    os << "#\n";
-
-    for (auto & r : _relations)
-        os << r.showRelation() << "\n";
-
-    std::ofstream fichier("apprentissage.txt");
-
-    // Ecrire l'apprentissage dans le fichier
-    fichier << os.str();
-    fichier.close();
-}

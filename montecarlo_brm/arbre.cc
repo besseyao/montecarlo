@@ -103,6 +103,36 @@ bool arbre::ajouterFilsSiRelationExiste(const noeud &origine, const noeud &desti
     return false;
 }
 
+void arbre::updateBranche(const std::string &id_noeud, int gain){
+    //std::vector<std::string> branche;
+    std::string noeud_recherche(id_noeud);
+
+    while (noeud_recherche != "") {
+        // branche.push_back(noeud_recherche);
+        getNoeudById(noeud_recherche)->setNbrFoisTraverse(getNoeudById(noeud_recherche)->getNbrFoisTraverse()+1);
+        getNoeudById(noeud_recherche)->setNbrGainCummule(getNoeudById(noeud_recherche)->getNbrGainCummule()+ gain);
+
+        std::vector<noeud> fils = getFilsRelationByOrigine(*getNoeudById(noeud_recherche));
+
+        for (auto & f:fils) {
+            if (getNoeudById(f.getId())->getNbrFoisTraverse() > 0)
+                //log() / f.getNbrFoisTraverse()
+                getNoeudById(f.getId())->setQubc((double) getNoeudById(f.getId())->getNbrGainCummule() + sqrt (2 * (log(getNoeudById(noeud_recherche)->getNbrFoisTraverse()) / (double) getNoeudById(f.getId())->getNbrFoisTraverse())));
+        }
+
+        noeud_recherche = getNoeudParent(noeud_recherche);
+    }
+}
+
+std::string arbre::getNoeudParent(const std::string &id_noeud){
+    for(auto &r : _relations)
+        for(auto &d: r.destination())
+            if(d.getId() == id_noeud)
+                return r.origine().getId();
+
+    return "";
+}
+
 void arbre::sauvegarderArbre() const
 {
     std::ostringstream os;

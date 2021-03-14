@@ -30,11 +30,20 @@ class arbre {
 
         bool ajouterFilsSiRelationExiste(noeud const & origine, noeud const & destination);
 
+        bool noeudFilsExisteBrix(noeud const & parent, Brix const & b){
+            std::vector<noeud> fils = getFilsRelationByOrigine(parent);
+
+            for(auto & f : fils)
+                if(getNoeudById(f.getId())->getBrix().getAo() == b.getAo() && getNoeudById(f.getId())->getBrix().getAx() == b.getAx()
+                        && getNoeudById(f.getId())->getBrix().getOo() == b.getOo() && getNoeudById(f.getId())->getBrix().getOx() == b.getOx())
+                    return true;
+            return false;
+        }
+
         void updateBranche(std::string const & id_noeud , int gain);
 
         void calculQUBC(std::string const &  noeud_recherche);
         std::string getNoeudParent(std::string const & id_noeud);
-
         void sauvegarderArbre() const;
 
 private:
