@@ -4,6 +4,97 @@ arbreNaire montecarlo::getArbre() const{
     return _arbre;
 }
 
+void montecarlo::enregistrerFichier() const{
+    std::ofstream monFlux("../data.txt");  //On essaye d'ouvrir le fichier
+
+    if(monFlux)  //On teste si tout est OK
+    {
+        arbreBinaire arbb;
+        _arbre.naireToBinaire(arbb);
+        std::vector<std::shared_ptr<noeud>> tab = arbb.binToTab();
+        for (const auto &i : tab){
+            monFlux << i->getId() << " " << i->getaX() << " " << i->getoX() << " " << i->getaO() << " " << i->getoO() << " "
+                    << i->getEstOuvert() << " " << i->getEstUnfils() << " " << i->getNbrFoisTraverse() << " " << i->getNbrGainCumule() << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "ERREUR: Impossible d'ouvrir le fichier." << std::endl;
+    }
+}
+
+//nécessaire pour lire les données du fichier
+std::vector<int> montecarlo::explode( const std::string &delimiter, const std::string &str)const {
+    std::vector<std::string> arr;
+    std::vector<int> exp;
+
+    int strleng = str.length();
+    int delleng = delimiter.length();
+    if (delleng==0){
+        return exp;
+    }
+    int i=0;
+    int k=0;
+    while( i<strleng )
+    {
+        int j=0;
+        while (i+j<strleng && j<delleng && str[i+j]==delimiter[j])
+            j++;
+        if (j==delleng)
+        {
+            arr.push_back(  str.substr(k, i-k) );
+            i+=delleng;
+            k=i;
+        }
+        else
+        {
+            i++;
+        }
+    }
+    arr.push_back(  str.substr(k, i-k) );
+
+    for (const auto & v : arr){
+        exp.push_back(std::stoi(v));
+    }
+
+    return exp;
+}
+
+
+arbreNaire montecarlo::chargerFichier()const{
+    std::ifstream monFlux("../data.txt");  //Ouverture d'un fichier en lecture
+
+    if(monFlux)
+    {
+        std::vector<std::shared_ptr<noeud>> v;
+        std::string ligne;
+        while (std::getline(monFlux,ligne)){
+            std::vector<int> e = this->explode(" ",ligne);
+            std::shared_ptr<noeud> val(new noeud(e[0],e[1],e[2],e[3],e[4]));
+            val->setEstOuvert(e[5]);
+            val->setEstUnfils(e[6]);
+            val->setNbrFoisTraverse(e[7]);
+            val->setNbrGainCummule(e[8]);
+            v.push_back(val);
+        }
+
+        monFlux.close();
+
+        arbreBinaire a;
+        a.tabToBin(v);
+        arbreNaire arbre;
+        arbre.binaireToNaire(a);
+        return arbre;
+    }
+    else
+    {
+        //c'est le premier coup
+        arbreNaire arbre;
+        return arbre;
+    }
+}
+
+
 //methode copié collé de Joueur_Random::recherche_coup
 void montecarlo::coupRandom (Jeu jeu,Brix &coup) const{
     std::vector<Brix> coupValide;
@@ -123,18 +214,6 @@ std::vector<Brix> montecarlo::coupsPossibles (const Jeu &jeu)const{
     return coupValide;
 }
 
-bool montecarlo::etatFusionnable(const int &indNoeudOrigine,const Jeu &jeu, const Brix &coup){
-    Jeu j1 = jeu;
-    j1.joue(coup);
-    for (const auto & r : _arbre.getArbreNaire()[indNoeudOrigine].getNoeudsDest()){
-        Jeu j2 = jeu;
-        Brix cp (r->getaX(),r->getaO(),r->getoX(),r->getoO());
-        j2.joue(cp);
-        if (j1.plateau()==j2.plateau())
-            return true;
-    }
-    return false;
-}
 
 void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
     // construction de la racine de l'arbre
@@ -164,7 +243,7 @@ void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
             if (!_arbre.tousExplores(cp,i)){
                 j=0;
                 //on selectionne un coup qui n'est pas dans l'arbre
-                while (_arbre.appartient(cp[j],i) && !etatFusionnable(i,jeu,cp[j]))
+                while (_arbre.appartient(cp[j],i))
                     ++j;
                 //growth
                 auto fils = std::make_shared<noeud>(id,cp[j].getAx(),cp[j].getOx(),cp[j].getAo(),cp[j].getOo());
@@ -177,7 +256,7 @@ void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
                 _arbre.ajoutfils(i,fils);
                 //on joue le coup dans le plateau
                 jeu.joue(cp[j]);
-                std::cout << jeu;
+                //std::cout << jeu;
                 growth=true;
             }
             //sinon on fait la selection exploration/enfoncement selon le calcul de l'UBC

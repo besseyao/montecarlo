@@ -12,35 +12,37 @@ std::shared_ptr<noeud> &relation::setNoeudOrigine(){
     return _noeudOrigine;
 }
 
-/*
-relationBinaire::relationBinaire(const noeud &noeudOrigine)
-    :relation (noeudOrigine){
-    _filsGauche.setEstUnfils(false);
-    _filsDroit.setEstUnfils(false);
+
+relationBinaire::relationBinaire(const std::shared_ptr<noeud> &noeudOrigine, const std::shared_ptr<noeud> &noeudGauche, const std::shared_ptr<noeud> &noeudDroit)
+    :relation (noeudOrigine),_filsGauche(noeudGauche),_filsDroit(noeudDroit){
+    if (_filsGauche->getId()!=-1)
+        _filsGauche->setEstUnfils(true);
+    if (_filsDroit->getId()!=-1)
+        _filsDroit->setEstUnfils(true);
 }
 
-noeud relationBinaire::getFilsGauche() const
+const std::shared_ptr<noeud> &relationBinaire::getFilsGauche() const
 {
     return _filsGauche;
 }
 
-noeud relationBinaire::getFilsDroit() const
+const std::shared_ptr<noeud> &relationBinaire::getFilsDroit() const
 {
     return  _filsDroit;
 }
 
-void relationBinaire::setFilsGauche(const noeud &n)
+void relationBinaire::setFilsGauche(const std::shared_ptr<noeud> &n)
 {
-    _filsGauche = n;
-    _filsGauche.setEstUnfils(true);
+    _filsGauche = std::move(n);
+    _filsGauche->setEstUnfils(true);
 }
 
-void relationBinaire::setFilsDroit(const noeud &n)
+void relationBinaire::setFilsDroit(const std::shared_ptr<noeud> &n)
 {
-    _filsDroit = n ;
-    _filsDroit.setEstUnfils(true);
+    _filsDroit = std::move(n) ;
+    _filsDroit->setEstUnfils(true);
 }
-*/
+
 
 
 

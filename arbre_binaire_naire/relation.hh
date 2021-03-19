@@ -17,17 +17,17 @@ class relation {
 
 class relationBinaire : public relation {
     public:
-        relationBinaire(noeud const & noeudOrigine);
+        relationBinaire(const std::shared_ptr<noeud> &noeudOrigine, const std::shared_ptr<noeud> &noeudGauche, const std::shared_ptr<noeud> &noeudDroit);
 
-        noeud getFilsGauche() const;
-        noeud getFilsDroit() const;
+        const std::shared_ptr<noeud> &getFilsGauche() const;
+        const std::shared_ptr<noeud> &getFilsDroit() const;
 
-        void setFilsGauche(const noeud & n);
-        void setFilsDroit(const noeud & n);
+        void setFilsGauche(const std::shared_ptr<noeud> &n);
+        void setFilsDroit(const std::shared_ptr<noeud> &n);
 
     private:
-        noeud _filsGauche;
-        noeud _filsDroit;
+        std::shared_ptr<noeud> _filsGauche;
+        std::shared_ptr<noeud> _filsDroit;
 };
 
 

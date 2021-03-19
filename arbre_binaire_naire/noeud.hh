@@ -17,7 +17,7 @@ class noeud
         noeud() =default;
         noeud(const unsigned int &id,const int aX, const int oX, const int aO, const int oO);
 
-        const unsigned int &getId() const ;
+        const int &getId() const ;
         const bool &getEstUnfils() const ;
         void setEstUnfils(const bool &rep);
 
@@ -26,6 +26,7 @@ class noeud
         const int &getNbrFoisTraverse() const;
         void setNbrGainCummule (const int &n);
         void setNbrFoisTraverse ();
+        void setNbrFoisTraverse (const int &v);
         void setEstOuvert (const bool &b);
         void setBrix (const int aX, const int oX, const int aO, const int oO);
         const int &getaX() const;
@@ -33,7 +34,7 @@ class noeud
         const int &getaO() const;
         const int &getoO() const;
     private:
-        unsigned int _id;
+        int _id;
         //les 4 données pour un brix
         int _aX;
         int _oX;

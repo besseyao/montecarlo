@@ -4,7 +4,7 @@ noeud::noeud(const unsigned int &id, const int aX, const int oX, const int aO, c
     :_id(id),_aX(aX),_oX(oX),_aO(aO),_oO(oO), _estUnFils(false),_estOuvert(true),_nbrGainCummule(0),_nbrFoisTraverse(0){}
 
 
-const unsigned int &noeud::getId() const {
+const int &noeud::getId() const {
     return _id;
 }
 
@@ -29,6 +29,10 @@ void noeud::setNbrGainCummule(const int &n){
 
 void noeud::setNbrFoisTraverse(){
     _nbrFoisTraverse++;
+}
+
+void noeud::setNbrFoisTraverse(const int &v){
+    _nbrFoisTraverse=v;
 }
 
 void noeud::setEstOuvert(const bool &b){
