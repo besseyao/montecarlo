@@ -12,14 +12,11 @@ class noeud
 
         const int &getId() const ;
 
-        const bool &getEstOuvert() const;
         const int &getNbrGainCumule() const;
         const int &getNbrFoisTraverse() const;
         void setNbrGainCummule (const int &n);
         void setNbrFoisTraverse ();
         void setNbrFoisTraverse (const int &v);
-        void setEstOuvert (const bool &b);
-        void setBrix (const int aX, const int oX, const int aO, const int oO);
         const int &getaX() const;
         const int &getoX() const;
         const int &getaO() const;
@@ -35,5 +32,4 @@ class noeud
         int _oO;
         int _nbrGainCummule;
         int _nbrFoisTraverse;
-        bool _estOuvert;
 };

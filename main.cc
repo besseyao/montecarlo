@@ -13,9 +13,9 @@ int main()
 
     montecarlo mc;
     Jeu jeu;
-    mc.apprentissage(jeu,3000000);
-    mc.enregistrerFichier();
-    //Joueur_MonteCarlo_::_arbreFichier = mc.chargerFichier();
+    //mc.apprentissage(jeu,300000);
+    //mc.enregistrerFichier();
+    Joueur_MonteCarlo_::_arbreFichier = mc.chargerFichier();
 
     //Joueur_MonteCarlo_ m1("lol",false);
     /*Joueur_Random r1("connard",true);
@@ -35,13 +35,13 @@ int main()
     //if (mc.getArbre().sontEgaux(m1._arbreFichier.getArbreNaire())) std::cout << "OUIIII";
     //else std::cout << "NOOON";
 
-/*
+
     // création de l'Arbitre (joueur jouant en 1er la premiere partie, joueur jouant en 2eme celle-ci , nombre de parties)
     Arbitre a (player::RAND,player::M_1,100);
     // commence le challenge
     int r= a.challenge();
    return r;
-*/
+
     return 0;
 
 }

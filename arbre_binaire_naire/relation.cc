@@ -35,7 +35,6 @@ void relationNaire::setNoeudsDest(std::shared_ptr<noeud> &n)
 void relationNaire::setNoeudOrigin(const int &result){
     _noeudOrigine->setNbrFoisTraverse();
     _noeudOrigine->setNbrGainCummule(result);
-    _noeudOrigine->setEstOuvert(false);
 }
 
 

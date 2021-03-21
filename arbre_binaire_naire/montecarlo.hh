@@ -13,7 +13,7 @@ class montecarlo {
         void enregistrerFichier()const;
         void coupRandom (Jeu jeu,Brix &coup)const;
         std::vector<Brix> coupsPossibles (const Jeu &jeu) const;
-        void simulePartie (Jeu &jeu);
+        void simulePartie (Jeu &jeu,const std::vector<int> &IdNoeudsParcourus);
         bool etatFusionnable (const int &indNoeudOrigine,const Jeu & jeu,const Brix &coup);
         void apprentissage(Jeu &jeu,const int &nbParties);
 
