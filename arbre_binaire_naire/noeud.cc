@@ -1,26 +1,20 @@
 #include "noeud.hh"
 
-noeud::noeud(const unsigned int &id, const int aX, const int oX, const int aO, const int oO)
-    :_id(id),_aX(aX),_oX(oX),_aO(aO),_oO(oO), _estUnFils(false),_estOuvert(true),_nbrGainCummule(0),_nbrFoisTraverse(0){}
+noeud::noeud(const unsigned int &id, const int &aX, const int &oX, const int &aO, const int &oO,const int &idPere)
+    :_id(id),_aX(aX),_oX(oX),_aO(aO),_oO(oO),_estOuvert(true),_nbrGainCummule(0),_nbrFoisTraverse(0),_idPere(idPere){}
 
 
 const int &noeud::getId() const {
     return _id;
 }
 
-const bool &noeud::getEstUnfils() const
-{
-    return _estUnFils;
-}
-
-
-void noeud::setEstUnfils(const bool &rep)
-{
-    _estUnFils = rep;
-}
 
 const bool &noeud::getEstOuvert() const {
     return _estOuvert;
+}
+
+const int &noeud::getIdPere() const {
+    return _idPere;
 }
 
 void noeud::setNbrGainCummule(const int &n){

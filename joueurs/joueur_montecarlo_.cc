@@ -5,7 +5,7 @@ Joueur_MonteCarlo_::Joueur_MonteCarlo_(std::string nom, bool joueur)
     :Joueur(nom,joueur)
 {}
 
-
+arbreNaire Joueur_MonteCarlo_::_arbreFichier;
 
 /*char Joueur_MonteCarlo_::nom_abbrege() const
 {
@@ -13,8 +13,6 @@ Joueur_MonteCarlo_::Joueur_MonteCarlo_(std::string nom, bool joueur)
 }
 */
 
-montecarlo mc;
-arbreNaire Joueur_MonteCarlo_::_arbreFichier = mc.chargerFichier();
 
 
 bool Joueur_MonteCarlo_::premierCoup(const board &b)const{
@@ -34,70 +32,51 @@ bool Joueur_MonteCarlo_::deuxiemeCoup(const board &b)const{
     return true;
 }
 
-void Joueur_MonteCarlo_::initPlateau(){
-    for (auto & ligne : _plateau)
-            for (auto & colonne : ligne)
-                colonne = '0';
-}
+
 
 int Joueur_MonteCarlo_::selectionneNoeud(const int &aX,const int &oX,const int &aO,const int &oO){
-    int i = _arbreFichier.getIndNoeudOrigine(_id);
-    for (const auto &a : _arbreFichier.getArbreNaire()[i].getNoeudsDest()){
+
+    if (_arbreFichier.getArbreNaire()[_id].getNoeudsDest().size()==0)
+        return 0;
+    for (const auto &a : _arbreFichier.getArbreNaire()[_id].getNoeudsDest()){
         if (a->getaX()==aX && a->getoX()==oX && a->getaO()==aO && a->getoO()==oO)
             return a->getId();
     }
     return 0;
 }
 
-void Joueur_MonteCarlo_::chargerCoupAdverse(const board &b){
-    int aX;
-    int oX;
-    int aO;
-    int oO;
-    for (int i=0;i<8;++i){
-        for(int j=0;j<44;++j){
-            if (b[i][j]=='x' && _plateau[i][j]=='0') {
-                aX=i;
-                oX=j;
-                _plateau[i][j]='x';
-            }
-            else if (b[i][j]=='o' && _plateau[i][j]=='0') {
-                aO=i;
-                oO=j;
-                _plateau[i][j]='o';
-            }
-        }
-    }
-    _id = this->selectionneNoeud(aX,oX,aO,oO);
-    if (_id==0) _parcourArbreFini=true;
 
+void Joueur_MonteCarlo_::selectionneMeilleurCoup(Brix &coup){
+
+    if (_arbreFichier.getArbreNaire()[_id].getNoeudsDest().size()!=0){
+        std::shared_ptr<noeud> noeud;
+        noeud = _arbreFichier.getArbreNaire()[_id].getNoeudsDest()[0];
+        for (const auto &a : _arbreFichier.getArbreNaire()[_id].getNoeudsDest()){
+            if (_joueurX){
+                //on choisit le coup avec le gain cumule le plus bas
+                if (a->getNbrGainCumule()<noeud->getNbrGainCumule())
+                    noeud=a;
+            }
+            else {
+                //on choisit le coup avec le gain cumule le plus haut
+                if (a->getNbrGainCumule()>noeud->getNbrGainCumule())
+                    noeud = a;
+            }
+
+        }
+        //std::cout << "coup choisi " << noeud->getId() << std::endl;
+        _id = noeud->getId();
+        coup.setAx(noeud->getaX());
+        coup.setOx(noeud->getoX());
+        coup.setAo(noeud->getaO());
+        coup.setOo(noeud->getoO());
+        coup.setDefinie(true);
+
+    }
+    else
+        _parcourArbreFini=true;
 }
 
-void Joueur_MonteCarlo_::selectionneMeilleurCoup(){
-
-    int i = _arbreFichier.getIndNoeudOrigine(_id);
-    int maxMin = 0;
-    int id = 0;
-    for (const auto &a : _arbreFichier.getArbreNaire()[i].getNoeudsDest()){
-        if (_joueurX){
-            //on choisit le coup avec le gain cumule le plus bas
-            if (a->getNbrGainCumule()<maxMin) {
-                maxMin=a->getNbrGainCumule();
-                id=a->getId();
-            }
-        }
-        else {
-            //on choisit le coup avec le gain cumule le plus haut
-            if (a->getNbrGainCumule()>maxMin) {
-                maxMin=a->getNbrGainCumule();
-                id=a->getId();
-            }
-        }
-    }
-    if (id==0) _parcourArbreFini=true;
-    _id=id;
-
-}
 
 void Joueur_MonteCarlo_::recherche_coup(Jeu jeu, Brix &coup)
 {
@@ -105,71 +84,72 @@ void Joueur_MonteCarlo_::recherche_coup(Jeu jeu, Brix &coup)
         //on reinitialise les variables utiles pour la partie
         _joueurX=true;
         _parcourArbreFini=false;
-        this->initPlateau();
         _id=0;
         //et on cherche le meilleur coup
-        this->selectionneMeilleurCoup();
-        int i = _arbreFichier.getIndNoeudOrigine(_id);
+        this->selectionneMeilleurCoup(coup);
 
-        coup.setAx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaX());
-        coup.setOx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoX());
-        coup.setAo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaO());
-        coup.setOo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoO());
-
-        //on le joue sur notre board
-        _plateau[coup.getAx()][coup.getOx()]='x';
-        _plateau[coup.getAo()][coup.getOo()]='o';
 
     }
     else if (deuxiemeCoup(jeu.plateau())){
         //on reinitialise les variables utiles pour la partie
+
         _joueurX=false;
         _parcourArbreFini=false;
-        this->initPlateau();
         _id=0;
 
         //on charge le premier coup joué par l'adversaire
-        this->chargerCoupAdverse(jeu.plateau());
+        _id=selectionneNoeud(coup.getAx(),coup.getOx(),coup.getAo(),coup.getOo());
+
 
         // on cherche le meilleur coup
-        this->selectionneMeilleurCoup();
-        int i = _arbreFichier.getIndNoeudOrigine(_id);
+        this->selectionneMeilleurCoup(coup);
 
-        coup.setAx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaX());
-        coup.setOx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoX());
-        coup.setAo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaO());
-        coup.setOo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoO());
-
-        //on le joue sur notre board
-        _plateau[coup.getAx()][coup.getOx()]='x';
-        _plateau[coup.getAo()][coup.getOo()]='o';
 
 
     }
     else {
+
+
         //on charge le dernier coup joué par l'adversaire
-        this->chargerCoupAdverse(jeu.plateau());
 
-        // on cherche le meilleur coup
-        this->selectionneMeilleurCoup();
-
-        //on selectionne le meilleur coup dans l'arbre si il a encore des solutions
         if (!_parcourArbreFini){
-            int i = _arbreFichier.getIndNoeudOrigine(_id);
+            _id = selectionneNoeud(coup.getAx(),coup.getOx(),coup.getAo(),coup.getOo());
+            //std::cout << "coup choisi de l'IA : " << _id << std::endl;
+            if (_id==0)
+                _parcourArbreFini=true;
+        }
+/*
+        std::cout << "mon plateau : "<< std::endl;
+        int j;
+        for(int i=MAX_HAUTEUR -1; i>=0; i--){
+                std::cout<<'|';
+                auto ligne =_plateau[i];
+                for (auto colonne : ligne)
+                    if (colonne == '0')
+                        std::cout<< " |";
+                    else if (colonne == 'x')
+                        std::cout<< "x|";
+                    else std::cout<< "o|";
+                std::cout<<"  "<<i<<std::endl;
+            }
+        std::cout<<std::endl << '|';
+        for (j=0 ; j<MAX_LARGEUR ; j++) {
+                std::cout << j << '|';
+            }
+        std::cout<<std::endl;
+*/
+        //on selectionne le meilleur coup dans l'arbre si il a encore des solutions
 
-            coup.setAx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaX());
-            coup.setOx(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoX());
-            coup.setAo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getaO());
-            coup.setOo(_arbreFichier.getArbreNaire()[i].getNoeudOrigine()->getoO());
 
-            //on le joue sur notre board
-            _plateau[coup.getAx()][coup.getOx()]='x';
-            _plateau[coup.getAo()][coup.getOo()]='o';
+        //on verifie si l arbre a donné une solution
+        if (!_parcourArbreFini){
+            this->selectionneMeilleurCoup(coup);
         }
 
         //si id=0 alors notre arbre de recherche n'a plus de solution, on decide de jouer un coup au hasard
         //methode de coup random copié de joueur_random
-        else{
+        if (_parcourArbreFini) {
+            //std::cout << "notre arbre est vide on joue maintenant au hasard" << std::endl;
             std::vector<Brix> coupValide;
             Brix b_canditate;
             int tour = jeu.nbCoupJoue()+1;//la b_candidate devra être valide au tour auquel on va la jouer,i.e. au tour suivant
@@ -222,9 +202,6 @@ void Joueur_MonteCarlo_::recherche_coup(Jeu jeu, Brix &coup)
             oX= coupValide[place_coup_joue].getOx();
             coup.setAllCoord(aX, oX, aO, oO);
 
-            //on le joue sur notre board
-            _plateau[coup.getAx()][coup.getOx()]='x';
-            _plateau[coup.getAo()][coup.getOo()]='o';
         }
     }
 }

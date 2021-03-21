@@ -9,12 +9,10 @@ void montecarlo::enregistrerFichier() const{
 
     if(monFlux)  //On teste si tout est OK
     {
-        arbreBinaire arbb;
-        _arbre.naireToBinaire(arbb);
-        std::vector<std::shared_ptr<noeud>> tab = arbb.binToTab();
-        for (const auto &i : tab){
-            monFlux << i->getId() << " " << i->getaX() << " " << i->getoX() << " " << i->getaO() << " " << i->getoO() << " "
-                    << i->getEstOuvert() << " " << i->getEstUnfils() << " " << i->getNbrFoisTraverse() << " " << i->getNbrGainCumule() << std::endl;
+        for (const auto &i : _arbre.getArbreNaire()){
+            monFlux << i.getNoeudOrigine()->getId() << " " << i.getNoeudOrigine()->getaX() << " " << i.getNoeudOrigine()->getoX() << " " << i.getNoeudOrigine()->getaO() << " "
+                    << i.getNoeudOrigine()->getoO() << " "<< i.getNoeudOrigine()->getNbrGainCumule() << " " << i.getNoeudOrigine()->getIdPere() << std::endl;
+
         }
     }
     else
@@ -23,76 +21,41 @@ void montecarlo::enregistrerFichier() const{
     }
 }
 
-//nécessaire pour lire les données du fichier
-std::vector<int> montecarlo::explode( const std::string &delimiter, const std::string &str)const {
-    std::vector<std::string> arr;
-    std::vector<int> exp;
-
-    int strleng = str.length();
-    int delleng = delimiter.length();
-    if (delleng==0){
-        return exp;
-    }
-    int i=0;
-    int k=0;
-    while( i<strleng )
-    {
-        int j=0;
-        while (i+j<strleng && j<delleng && str[i+j]==delimiter[j])
-            j++;
-        if (j==delleng)
-        {
-            arr.push_back(  str.substr(k, i-k) );
-            i+=delleng;
-            k=i;
-        }
-        else
-        {
-            i++;
-        }
-    }
-    arr.push_back(  str.substr(k, i-k) );
-
-    for (const auto & v : arr){
-        exp.push_back(std::stoi(v));
-    }
-
-    return exp;
-}
 
 
-arbreNaire montecarlo::chargerFichier()const{
+arbreNaire montecarlo::chargerFichier(){
     std::ifstream monFlux("../data.txt");  //Ouverture d'un fichier en lecture
-
-    if(monFlux)
-    {
+    arbreNaire arbre;
+    if(monFlux) {
         std::vector<std::shared_ptr<noeud>> v;
         std::string ligne;
         while (std::getline(monFlux,ligne)){
-            std::vector<int> e = this->explode(" ",ligne);
-            std::shared_ptr<noeud> val(new noeud(e[0],e[1],e[2],e[3],e[4]));
-            val->setEstOuvert(e[5]);
-            val->setEstUnfils(e[6]);
-            val->setNbrFoisTraverse(e[7]);
-            val->setNbrGainCummule(e[8]);
-            v.push_back(val);
+            std::vector<std::string> res;
+            std::istringstream iss(ligne);
+            std::vector<int> e;
+
+            for (std::string token; std::getline(iss, token, ' '); )
+                res.push_back(std::move(token));
+
+            for (auto &i : res)
+                e.push_back(std::stoi(i));
+
+            std::shared_ptr<noeud> val(new noeud(e[0],e[1],e[2],e[3],e[4],e[6]));
+            val->setNbrGainCummule(e[5]);
+            std::vector<std::shared_ptr<noeud>> noeudDest;
+            relationNaire r (val,noeudDest);
+            arbre.ajout(r);
+            if (e[6]!=-1)
+                arbre.ajoutfils(e[6],val);
         }
-
         monFlux.close();
-
-        arbreBinaire a;
-        a.tabToBin(v);
-        arbreNaire arbre;
-        arbre.binaireToNaire(a);
-        return arbre;
     }
-    else
-    {
-        //c'est le premier coup
-        arbreNaire arbre;
-        return arbre;
+    else {
+        std::cout << "lecture impossible" << std::endl;
     }
+    return arbre;
 }
+
 
 
 //methode copié collé de Joueur_Random::recherche_coup
@@ -218,7 +181,7 @@ std::vector<Brix> montecarlo::coupsPossibles (const Jeu &jeu)const{
 void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
     // construction de la racine de l'arbre
     int id = 0;
-    auto racine = std::make_shared<noeud>(0,0,0,0,0);
+    auto racine = std::make_shared<noeud>(0,0,0,0,0,-1);
     id++;
     std::vector<std::shared_ptr<noeud>> vide;
     relationNaire r(racine,vide);
@@ -246,7 +209,7 @@ void montecarlo::apprentissage (Jeu &jeu, const int &nbParties) {
                 while (_arbre.appartient(cp[j],i))
                     ++j;
                 //growth
-                auto fils = std::make_shared<noeud>(id,cp[j].getAx(),cp[j].getOx(),cp[j].getAo(),cp[j].getOo());
+                auto fils = std::make_shared<noeud>(id,cp[j].getAx(),cp[j].getOx(),cp[j].getAo(),cp[j].getOo(),i);
                 id++;
                 //ajout en tant que noeud dans l'arbre
                 std::vector<std::shared_ptr<noeud>> vide;
