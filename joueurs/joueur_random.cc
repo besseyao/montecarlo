@@ -66,7 +66,7 @@ void Joueur_Random::recherche_coup(Jeu jeu, Brix &coup)
     oX= coupValide[place_coup_joue].getOx();
     coup.setAllCoord(aX, oX, aO, oO);
 
-    //std::this_thread::sleep_for (std::chrono::milliseconds(rand() % (TEMPS_POUR_UN_COUP+1)));
+    std::this_thread::sleep_for (std::chrono::milliseconds(rand() % (TEMPS_POUR_UN_COUP+1)));
 
 }
 
